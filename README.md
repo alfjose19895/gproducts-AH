@@ -95,3 +95,78 @@ Esta es la forma más rápida de levantar el proyecto con todas sus dependencias
 ├── docker-compose.yml      # Configuración de orquestación
 ├── openapi.yaml            # Documentación técnica de la API
 └── README.md               # Documentación general
+
+
+## Definicion del Modelado de Datos
+
+El sistema utiliza un modelo de datos relacional diseñado para garantizar 
+la integridad referencial y la consistencia del inventario. 
+Se divide en tres entidades principales:
+
+1. Entidad: Product (Catálogo e Inventario)
+Es el núcleo del sistema. Almacena la información técnica y comercial 
+de los artículos.
+
+Campos clave: price (para cálculos monetarios) y 
+stock (campo crítico que el frontend consulta para habilitar/deshabilitar ventas).
+
+2. Entidad: Order (Cabecera de Pedido)
+Representa la transacción final. Almacena datos globales de la compra.
+
+Relación: Se vincula con un customer_id (simulado en este proyecto) 
+para rastrear quién realizó la compra.
+
+3. Entidad: OrderItem (Detalle del Pedido)
+Es una tabla de ruptura que resuelve la relación de muchos a 
+muchos entre Productos y Órdenes.
+
+  * Función: Guarda una "fotografía" del precio y la cantidad 
+  en el momento de la compra, permitiendo que si el precio del 
+  producto cambia en el catálogo, el historial del pedido se mantenga intacto.
+
+
+erDiagram
+    PRODUCT ||--o{ ORDER_ITEM : "se incluye en"
+    ORDER ||--|{ ORDER_ITEM : "contiene"
+    
+    PRODUCT {
+        int id PK
+        string name "Nombre del producto"
+        string sku "Código único de inventario"
+        decimal price "Precio unitario"
+        int stock "Existencias disponibles"
+    }
+
+    ORDER {
+        int id PK
+        int customer_id "ID del cliente (1: Cliente, 2: Admin)"
+        decimal total "Suma total de la orden"
+        datetime created_at "Fecha de creación"
+    }
+
+    ORDER_ITEM {
+        int id PK
+        int order_id FK "Referencia a la orden"
+        int product_id FK "Referencia al producto"
+        int quantity "Cantidad comprada"
+        decimal price "Precio al momento de la venta"
+    }
+
+Reglas de Negocio en el MER:
+Relación 1:N (Order -> OrderItem): Una orden puede tener múltiples productos, 
+pero cada línea de detalle pertenece a una única orden.
+
+Relación 1:N (Product -> OrderItem): Un producto puede aparecer en muchas 
+órdenes diferentes.
+
+Integridad de Stock: Cada vez que se inserta un registro en ORDER_ITEM, 
+el sistema (Backend) debe restar la quantity del stock en la tabla PRODUCT.
+
+**Diccionario de Datos Técnico**
+
+Tabla,Campo,Tipo,Descripción
+Product,sku,VARCHAR(50),Índice único para búsquedas rápidas.
+Product,price,"DECIMAL(10,2)",Precisión decimal para evitar errores de redondeo.
+Order,total,"DECIMAL(10,2)",Calculado como la sumatoria de los items.
+OrderItem,product_id,INT (FK),Restricción ON DELETE SET NULL para 
+mantener el historial si un producto se borra.
