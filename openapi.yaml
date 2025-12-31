@@ -1,0 +1,180 @@
+openapi: 3.0.0
+info:
+  title: StoreApp API - Sistema de Pedidos
+  description: API para la gestión de catálogo de productos y procesamiento de órdenes de compra con roles de Admin y Cliente.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/api
+    description: Servidor Local de Symfony
+
+paths:
+  # --- PRODUCTOS ---
+  /products:
+    get:
+      summary: Obtener catálogo de productos
+      description: Retorna una lista de productos. Permite filtrar por nombre o SKU mediante el parámetro search.
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Término de búsqueda para nombre o SKU.
+      responses:
+        '200':
+          description: Lista de productos obtenida con éxito.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+    post:
+      summary: Crear un nuevo producto (Solo ADMIN)
+      responses:
+        '201':
+          description: Producto creado con éxito.
+        '400':
+          description: Datos inválidos.
+
+  /products/{id}:
+    delete:
+      summary: Eliminar un producto
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Producto eliminado.
+        '400':
+          description: No se puede eliminar si tiene órdenes asociadas.
+
+  # --- ÓRDENES ---
+  /orders:
+    get:
+      summary: Listado de pedidos realizados
+      responses:
+        '200':
+          description: Array de pedidos con sus totales.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+    post:
+      summary: Crear una nueva orden (Checkout)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customerId:
+                  type: integer
+                  example: 1
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        description: ID del producto.
+                      quantity:
+                        type: integer
+                        description: Cantidad a comprar.
+      responses:
+        '201':
+          description: Pedido creado con éxito.
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    example: 10
+        '400':
+          description: Error de stock o datos incompletos.
+
+  /orders/{id}:
+    get:
+      summary: Obtener detalle de una orden específica
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detalle completo del pedido incluyendo productos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetail'
+        '404':
+          description: Orden no encontrada.
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        sku:
+          type: string
+        price:
+          type: number
+          format: float
+        stock:
+          type: integer
+      example:
+        id: 1
+        name: "Cargador Rápido USB-C"
+        sku: "CARG-001"
+        price: 25.99
+        stock: 15
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        total:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+      example:
+        id: 10
+        total: 51.98
+        createdAt: "2023-10-27T10:00:00Z"
+
+    OrderDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        total:
+          type: number
+        createdAt:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              productName:
+                type: string
+              price:
+                type: number
+              quantity:
+                type: integer
