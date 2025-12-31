@@ -1,0 +1,24 @@
+# backend/config/packages/test/framework.yaml
+framework:
+    # Habilita el cliente de pruebas (createClient) que dio el error LogicException
+    test: true
+
+    # Configura las sesiones para que no intenten escribir en disco real,
+    # sino que usen un almacenamiento simulado en memoria para los tests.
+    session:
+        storage_factory_id: session.storage.factory.mock_file
+
+    # Deshabilita el manejo de perfiles para mejorar la velocidad de los tests
+    profiler:
+        collect: false
+
+    # En entorno de test, queremos que los errores sean visibles en la consola de PHPUnit
+    php_errors:
+        log: true
+
+# Configuración específica para el cliente HTTP simulado
+# (Útil si tus tests llaman a servicios externos)
+services:
+    test.client:
+        class: Symfony\Bundle\FrameworkBundle\KernelBrowser
+        public: true

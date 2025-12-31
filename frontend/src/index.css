@@ -1,0 +1,50 @@
+/* 1. Importación principal de Tailwind CSS v4 */
+@import "tailwindcss";
+
+/* 2. Configuración Global para el Diseño Premium */
+:root {
+  /* Fuente moderna y limpia */
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* Color de fondo Slate-50 (Gris muy claro) */
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+/* 3. Forzar altura completa para centrado de Login */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  /* Esto permite que las clases 'flex' y 'items-center' del Login funcionen */
+  display: flex;
+  flex-direction: column;
+}
+
+/* 4. Suavizado de tipografía */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 5. Estilo personalizado para el scroll (opcional) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
