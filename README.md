@@ -52,7 +52,7 @@ Esta es la forma más rápida de levantar el proyecto con todas sus dependencias
 
 ### Acceso a las aplicaciones:
 * **Frontend:** `http://localhost:3000`
-* **Backend API:** `http://localhost:8000`
+* **Backend API:** `http://localhost:80`
 * **Base de Datos:** `localhost:8080`
 * **El proyecto en browser compila** en: http://localhost:3000/login
 ---
